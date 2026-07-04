@@ -99,15 +99,59 @@ Notes:
 Goal: play/engagement stats per content item, as if a real consumer app were
 driving traffic.
 
-- Separate `AnalyticsEvents` (or aggregated `ContentStats`) table with FK to
-  `ContentItem.Id` — first genuinely relational data in the schema (works fine
-  against the TPH table).
-- `IAnalyticsService` interface so implementations are swappable via DI:
-  - [ ] Real implementation reading from the analytics table
-  - [ ] Simulator implementation generating plausible plays/engagement over time
-- [ ] Surface stats in the admin UI (list columns and/or details view)
-- To discuss: event-level vs pre-aggregated storage; whether the simulator
-  writes to the same table (background service) or fakes reads.
+**Storage — two tiers, because two questions have different lifetimes:**
+
+- `ContentStats` (aggregate, one row per content item, **never expires**) —
+  lifetime rollups that must survive event purging:
+  - `ContentItemId` (FK to `ContentItem.Id`, one-to-one)
+  - `TotalPlays` (lifetime)
+  - `ThumbsUp`, `ThumbsDown` (lifetime counts)
+  - `PositiveRatingPercent` — computed, not stored: `ThumbsUp / (ThumbsUp +
+    ThumbsDown)`, shown Steam-style in the UI.
+- `PlayEvent` (event-level, **30-day TTL**) — one row per play, so we can
+  chart plays over time and see viewership drop off:
+  - `Id`
+  - `ContentItemId` (FK)
+  - `PlayedAt` (UTC timestamp)
+  - `Country` (country of origin the play came from)
+
+Rationale: ratings and lifetime plays are cheap running totals we keep
+forever on `ContentStats`; individual play events are the bulky, ephemeral
+part, so they carry a 30-day TTL to cap storage cost. When an event is
+purged, `TotalPlays` on the aggregate is unaffected — it was already
+incremented when the play happened. `Country` lives on the event because it
+is inherently per-play; geographic breakdown is therefore "last 30 days".
+
+**TTL implementation:** SQLite has no native TTL, so a background
+`IHostedService` periodically deletes `PlayEvent` rows older than 30 days.
+Time-window queries also filter by date defensively, so a late purge never
+shows stale data.
+
+### Steps (build + stop for inspection after each)
+
+- [ ] **Step 1 — Analytics domain models.** `ContentStats` and `PlayEvent`
+  in `Models/`, mirroring the existing entity style (plain properties,
+  computed `PositiveRatingPercent` marked `[NotMapped]`, no comments).
+- [ ] **Step 2 — DbContext + schema.** Add `DbSet`s, configure the FK to
+  `ContentItem`, one-to-one for stats, and an index on
+  `PlayEvent(ContentItemId, PlayedAt)` for the time-series query.
+- [ ] **Step 3 — `IAnalyticsService` + EF implementation.** Read side:
+  stats for one item, plays-over-time (grouped by day within a window),
+  country breakdown; write side: record a play (insert event + bump
+  aggregate), record a rating (bump thumbs up/down). Registered via DI.
+- [ ] **Step 4 — Simulator.** Seeds `ContentStats` for existing content and
+  generates plausible historical `PlayEvent`s + ratings, so the UI has data
+  on first run. (Decide: one-off seed vs ongoing background traffic.)
+- [ ] **Step 5 — TTL purge.** `IHostedService` deleting `PlayEvent`s older
+  than 30 days on an interval.
+- [ ] **Step 6 — UI.** Surface `% positive` and total plays on the list,
+  and a per-item analytics view with a plays-over-time filter (viewership
+  trend) and country breakdown.
+
+Open decisions to confirm at inspection: `Country` as a `string` (ISO code)
+vs a fixed enum; whether the simulator is a one-off seed or a live
+background feed; where analytics surfaces first (list columns vs a dedicated
+details page).
 
 ## Phase 4 — DuckDB-driven frontend filtering
 
