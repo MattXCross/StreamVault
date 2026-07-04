@@ -1,0 +1,89 @@
+@model CatalogueListViewModel
+@{
+    ViewData["Title"] = "Catalogue";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Catalogue</h1>
+    <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            Add content
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            @foreach (var type in ContentTypes.All)
+            {
+                <li>
+                    <a class="dropdown-item" asp-controller="@type.ControllerName" asp-action="Create">@type.DisplayName</a>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+@if (TempData["Message"] is string message)
+{
+    <div class="alert alert-success">@message</div>
+}
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <select name="type" class="form-select">
+            <option value="">All types</option>
+            @foreach (var type in ContentTypes.All)
+            {
+                <option value="@type.DisplayName" selected="@(type.DisplayName == Model.TypeFilter ? "selected" : null)">
+                    @type.DisplayName
+                </option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <input type="text" name="search" value="@Model.SearchTerm" class="form-control" placeholder="Search by title"/>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Apply</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+    </div>
+</form>
+
+@if (Model.Items.Count == 0)
+{
+    <p class="text-muted">No content matches your filters.</p>
+}
+else
+{
+    <table class="table table-hover align-middle">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Genre</th>
+            <th>Release date</th>
+            <th>Age rating</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in Model.Items)
+        {
+            var controller = ContentTypes.ControllerFor(item);
+            <tr>
+                <td>@item.Title</td>
+                <td><span class="badge text-bg-secondary">@item.TypeDisplayName</span></td>
+                <td>@item.Genre</td>
+                <td>@item.ReleaseDate.ToString("d MMM yyyy")</td>
+                <td>@item.AgeRating.DisplayName()</td>
+                <td class="text-end">
+                    <a asp-controller="@controller" asp-action="Edit" asp-route-id="@item.Id"
+                       class="btn btn-sm btn-outline-primary">Edit</a>
+                    <form asp-controller="@controller" asp-action="Delete" asp-route-id="@item.Id"
+                          method="post" class="d-inline"
+                          onsubmit="return confirm('Delete this item from the catalogue?');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

@@ -80,12 +80,12 @@ Notes:
 - [x] Domain entities: `ContentItem` + four subclasses, `AgeRating` enum
 - [x] `ICatalogueRepository` + `EfCatalogueRepository`, DI registration
 - [x] `DbSeeder`: EnsureCreated + seed data (a few items per type)
-- [ ] View models with validation attributes + entity mapping
-- [ ] `ContentEntryController<TContent, TViewModel>` base (Create/Edit/Delete)
-- [ ] Four per-type controllers + Create/Edit views (shared partial for common fields)
-- [ ] `CatalogueController` Index: list with type visible, filter by type, search by title
-- [ ] Delete with confirm, POST + anti-forgery
-- [ ] Layout/nav tidy-up (point template nav at Catalogue), remove leftover template cruft
+- [x] View models with validation attributes + entity mapping
+- [x] `ContentEntryController<TContent, TViewModel>` base (Create/Edit/Delete)
+- [x] Four per-type controllers + Create/Edit views (shared partial for common fields)
+- [x] `CatalogueController` Index: list with type visible, filter by type, search by title
+- [x] Delete with confirm, POST + anti-forgery
+- [x] Layout/nav tidy-up (point template nav at Catalogue), remove leftover template cruft
 - [ ] Manual test pass: all four types through create → list → filter → search → edit → delete
 - [ ] README: run instructions + brief rationale for EF Core / TPH choices
 
@@ -128,3 +128,9 @@ Open questions to talk through before building:
 - **2026-07-04** — Reviewed template (stock MVC, net10.0). Agreed decisions:
   EF Core, TPH, repository interface, generic base controller. Deferred
   pagination/analytics/DuckDB to later phases. Wrote this plan.
+- **2026-07-04 (build)** — Phase 1 built in staged commits: EF package →
+  domain models → data layer (verified seeding creates the single Contents
+  table) → view models → per-type controllers/views → catalogue list page.
+  Smoke-tested via curl: list/filter/search, create (valid + invalid with
+  server-side validation errors), type-scoped edit (wrong-type id 404s),
+  delete. Remaining: manual browser pass by Matt + README.

@@ -1,9 +1,5 @@
 namespace StreamVault.Models;
 
-/// <summary>
-/// Base class for everything in the catalogue. Stored as a single table
-/// (table-per-hierarchy) with a discriminator column per content type.
-/// </summary>
 public abstract class ContentItem
 {
     public int Id { get; set; }
@@ -17,7 +13,6 @@ public abstract class ContentItem
     public AgeRating AgeRating { get; set; }
 
     public string Genre { get; set; } = string.Empty;
-
-    /// <summary>Human-readable type name shown in the catalogue list.</summary>
+    
     public abstract string TypeDisplayName { get; }
 }
