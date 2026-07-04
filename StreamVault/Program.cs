@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using StreamVault.Configuration;
 using StreamVault.Data;
 
@@ -26,21 +25,22 @@ builder.Services.AddDbContext<CatalogueDbContext>(options =>
 });
 builder.Services.AddScoped<ICatalogueRepository, EfCatalogueRepository>();
 builder.Services.AddScoped<IAnalyticsService, EfAnalyticsService>();
+builder.Services.AddSingleton<IAnalyticsSimulator, AnalyticsSimulator>();
 
 if (usingSqlite)
 {
     builder.Services.AddHostedService<PlayEventPurgeService>();
 }
 
+var analyticsOptions = builder.Configuration.GetSection(AnalyticsOptions.SectionName).Get<AnalyticsOptions>() ?? new AnalyticsOptions();
+if (analyticsOptions.EnableSimulator)
+{
+    builder.Services.AddHostedService<AnalyticsSimulationService>();
+}
+
 var app = builder.Build();
 
 app.Services.EnsureSeeded();
-
-var analyticsOptions = app.Services.GetRequiredService<IOptions<AnalyticsOptions>>().Value;
-if (analyticsOptions.EnableSimulator)
-{
-    app.Services.EnsureSimulated(analyticsOptions.PlayEventRetentionDays);
-}
 
 if (!app.Environment.IsDevelopment())
 {

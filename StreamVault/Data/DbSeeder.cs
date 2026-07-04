@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+using StreamVault.Configuration;
 using StreamVault.Models;
 
 namespace StreamVault.Data;
@@ -11,16 +13,29 @@ public static class DbSeeder
 
         db.Database.EnsureCreated();
 
-        if (db.Contents.Any())
+        if (!db.Contents.Any())
         {
-            return;
+            db.Contents.AddRange(Movies());
+            db.Contents.AddRange(SeriesList());
+            db.Contents.AddRange(Audiobooks());
+            db.Contents.AddRange(Albums());
+            db.SaveChanges();
         }
 
-        db.Contents.AddRange(Movies());
-        db.Contents.AddRange(SeriesList());
-        db.Contents.AddRange(Audiobooks());
-        db.Contents.AddRange(Albums());
-        db.SaveChanges();
+        var options = scope.ServiceProvider.GetRequiredService<IOptions<AnalyticsOptions>>().Value;
+        if (options.EnableSimulator && !db.ContentStats.Any())
+        {
+            var simulator = scope.ServiceProvider.GetRequiredService<IAnalyticsSimulator>();
+
+            foreach (var contentId in db.Contents.Select(c => c.Id).ToList())
+            {
+                var plays = simulator.SimulateHistory(contentId, options.PlayEventRetentionDays);
+                db.PlayEvents.AddRange(plays);
+                db.ContentStats.Add(simulator.SimulateStats(contentId, plays.Count));
+            }
+
+            db.SaveChanges();
+        }
     }
 
     private static IEnumerable<Movie> Movies() =>

@@ -2,34 +2,26 @@ using StreamVault.Models;
 
 namespace StreamVault.Data;
 
-public static class AnalyticsSimulator
+public class AnalyticsSimulator : IAnalyticsSimulator
 {
+    private const double RatingChance = 0.1;
+    private const double PositiveRatingChance = 0.75;
+
     private static readonly string[] Countries =
         ["GB", "US", "DE", "FR", "CA", "AU", "JP", "BR", "IN", "SE"];
 
-    public static void EnsureSimulated(this IServiceProvider services, int retentionDays)
+    private readonly Random random;
+
+    public AnalyticsSimulator() : this(new Random())
     {
-        using var scope = services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<CatalogueDbContext>();
-
-        if (db.ContentStats.Any())
-        {
-            return;
-        }
-
-        var random = new Random();
-
-        foreach (var contentId in db.Contents.Select(c => c.Id).ToList())
-        {
-            var plays = SimulatePlays(contentId, retentionDays, random);
-            db.PlayEvents.AddRange(plays);
-            db.ContentStats.Add(SimulateStats(contentId, plays.Count, random));
-        }
-
-        db.SaveChanges();
     }
 
-    private static List<PlayEvent> SimulatePlays(int contentId, int windowDays, Random random)
+    internal AnalyticsSimulator(Random random)
+    {
+        this.random = random;
+    }
+
+    public IReadOnlyList<PlayEvent> SimulateHistory(int contentId, int windowDays)
     {
         var basePlaysPerDay = random.Next(2, 16);
         var trend = (Trend)random.Next(3);
@@ -53,7 +45,7 @@ public static class AnalyticsSimulator
         return plays;
     }
 
-    private static ContentStats SimulateStats(int contentId, int recentPlays, Random random)
+    public ContentStats SimulateStats(int contentId, int recentPlays)
     {
         var lifetimePlays = recentPlays + random.Next(recentPlays * 2, recentPlays * 8 + 1);
         var ratingCount = (int)Math.Round(lifetimePlays * (0.05 + random.NextDouble() * 0.10));
@@ -68,7 +60,18 @@ public static class AnalyticsSimulator
         };
     }
 
-    private static double TrendFactor(Trend trend, int dayOffset, int windowDays)
+    public SimulatedPlay NextPlay(IReadOnlyList<int> contentIds)
+    {
+        var contentId = contentIds[random.Next(contentIds.Count)];
+        var country = Countries[random.Next(Countries.Length)];
+        bool? rating = random.NextDouble() < RatingChance
+            ? random.NextDouble() < PositiveRatingChance
+            : null;
+
+        return new SimulatedPlay(contentId, country, rating);
+    }
+
+    internal static double TrendFactor(Trend trend, int dayOffset, int windowDays)
     {
         var span = Math.Max(1, windowDays - 1);
         return trend switch
@@ -79,7 +82,7 @@ public static class AnalyticsSimulator
         };
     }
 
-    private enum Trend
+    internal enum Trend
     {
         Declining,
         Steady,
