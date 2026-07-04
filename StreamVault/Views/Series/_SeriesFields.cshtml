@@ -1,0 +1,14 @@
+@model SeriesFormViewModel
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label asp-for="Seasons" class="form-label"></label>
+        <input asp-for="Seasons" class="form-control" />
+        <span asp-validation-for="Seasons" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="TotalEpisodes" class="form-label"></label>
+        <input asp-for="TotalEpisodes" class="form-control" />
+        <span asp-validation-for="TotalEpisodes" class="text-danger"></span>
+    </div>
+</div>

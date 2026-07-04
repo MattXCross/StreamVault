@@ -1,0 +1,19 @@
+@model AudiobookFormViewModel
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label asp-for="Author" class="form-label"></label>
+        <input asp-for="Author" class="form-control" />
+        <span asp-validation-for="Author" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="Narrator" class="form-label"></label>
+        <input asp-for="Narrator" class="form-control" />
+        <span asp-validation-for="Narrator" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="DurationMinutes" class="form-label"></label>
+        <input asp-for="DurationMinutes" class="form-control" />
+        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+    </div>
+</div>

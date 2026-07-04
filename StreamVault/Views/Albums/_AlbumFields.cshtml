@@ -1,0 +1,19 @@
+@model AlbumFormViewModel
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <label asp-for="Artist" class="form-label"></label>
+        <input asp-for="Artist" class="form-control" />
+        <span asp-validation-for="Artist" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="TrackCount" class="form-label"></label>
+        <input asp-for="TrackCount" class="form-control" />
+        <span asp-validation-for="TrackCount" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="RecordLabel" class="form-label"></label>
+        <input asp-for="RecordLabel" class="form-control" />
+        <span asp-validation-for="RecordLabel" class="text-danger"></span>
+    </div>
+</div>

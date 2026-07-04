@@ -1,0 +1,18 @@
+@model AlbumFormViewModel
+@{
+    ViewData["Title"] = "Edit album";
+}
+
+<h1>Edit album</h1>
+
+<form asp-action="Edit" asp-route-id="@Model.Id" class="col-md-8">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <partial name="_CommonContentFields" />
+    <partial name="_AlbumFields" />
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-controller="Catalogue" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
