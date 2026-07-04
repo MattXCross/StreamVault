@@ -10,10 +10,27 @@ builder.Services.AddControllersWithViews();
 builder.Services.Configure<AnalyticsOptions>(
     builder.Configuration.GetSection(AnalyticsOptions.SectionName));
 
+var databaseProvider = builder.Configuration["Database:Provider"] ?? "Sqlite";
+var usingSqlite = string.Equals(databaseProvider, "Sqlite", StringComparison.OrdinalIgnoreCase);
+
 builder.Services.AddDbContext<CatalogueDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("Catalogue")));
+{
+    if (usingSqlite)
+    {
+        options.UseSqlite(builder.Configuration.GetConnectionString("Catalogue") ?? "Data Source=streamvault.db");
+    }
+    else
+    {
+        throw new NotSupportedException($"Unsupported database provider '{databaseProvider}'. Only 'Sqlite' is implemented.");
+    }
+});
 builder.Services.AddScoped<ICatalogueRepository, EfCatalogueRepository>();
 builder.Services.AddScoped<IAnalyticsService, EfAnalyticsService>();
+
+if (usingSqlite)
+{
+    builder.Services.AddHostedService<PlayEventPurgeService>();
+}
 
 var app = builder.Build();
 
