@@ -4,7 +4,7 @@ namespace StreamVault.Data;
 
 public interface ICatalogueRepository
 {
-    Task<IReadOnlyList<ContentItem>> SearchAsync(CatalogueQuery query);
+    Task<PagedResult<ContentItem>> SearchAsync(CatalogueQuery query);
 
     Task<T?> FindAsync<T>(int id) where T : ContentItem;
 

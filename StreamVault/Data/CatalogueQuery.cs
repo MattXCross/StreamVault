@@ -1,7 +1,7 @@
 namespace StreamVault.Data;
 
-/// <summary>
-/// Filter criteria for the catalogue list. ContentType matches the
-/// discriminator values configured in <see cref="CatalogueDbContext"/>.
-/// </summary>
-public record CatalogueQuery(string? ContentType = null, string? SearchTerm = null);
+public record CatalogueQuery(
+    string? ContentType = null,
+    string? SearchTerm = null,
+    int Page = 1,
+    int PageSize = 10);

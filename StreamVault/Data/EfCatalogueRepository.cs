@@ -5,7 +5,7 @@ namespace StreamVault.Data;
 
 public class EfCatalogueRepository(CatalogueDbContext db) : ICatalogueRepository
 {
-    public async Task<IReadOnlyList<ContentItem>> SearchAsync(CatalogueQuery query)
+    public async Task<PagedResult<ContentItem>> SearchAsync(CatalogueQuery query)
     {
         IQueryable<ContentItem> items = db.Contents;
 
@@ -19,7 +19,17 @@ public class EfCatalogueRepository(CatalogueDbContext db) : ICatalogueRepository
             items = items.Where(c => EF.Functions.Like(c.Title, $"%{query.SearchTerm}%"));
         }
 
-        return await items.OrderBy(c => c.Title).ToListAsync();
+        var totalCount = await items.CountAsync();
+        var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)query.PageSize));
+        var page = Math.Clamp(query.Page, 1, totalPages);
+
+        var pageItems = await items
+            .OrderBy(c => c.Title)
+            .Skip((page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToListAsync();
+
+        return new PagedResult<ContentItem>(pageItems, totalCount, page, query.PageSize);
     }
 
     public async Task<T?> FindAsync<T>(int id) where T : ContentItem

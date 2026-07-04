@@ -6,13 +6,13 @@ namespace StreamVault.Controllers;
 
 public class CatalogueController(ICatalogueRepository repository) : Controller
 {
-    public async Task<IActionResult> Index(string? type, string? search)
+    public async Task<IActionResult> Index(string? type, string? search, int page = 1)
     {
-        var items = await repository.SearchAsync(new CatalogueQuery(type, search));
+        var results = await repository.SearchAsync(new CatalogueQuery(type, search, page));
 
         var model = new CatalogueListViewModel
         {
-            Items = items,
+            Results = results,
             TypeFilter = type,
             SearchTerm = search
         };

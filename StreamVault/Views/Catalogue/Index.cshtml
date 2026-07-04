@@ -46,7 +46,7 @@
     </div>
 </form>
 
-@if (Model.Items.Count == 0)
+@if (Model.Results.TotalCount == 0)
 {
     <p class="text-muted">No content matches your filters.</p>
 }
@@ -64,7 +64,7 @@ else
         </tr>
         </thead>
         <tbody>
-        @foreach (var item in Model.Items)
+        @foreach (var item in Model.Results.Items)
         {
             var controller = ContentTypes.ControllerFor(item);
             <tr>
@@ -86,4 +86,27 @@ else
         }
         </tbody>
     </table>
+
+    @if (Model.Results.TotalPages > 1)
+    {
+        <nav aria-label="Catalogue pages">
+            <ul class="pagination">
+                <li class="page-item @(Model.Results.HasPrevious ? null : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-type="@Model.TypeFilter"
+                       asp-route-search="@Model.SearchTerm" asp-route-page="@(Model.Results.Page - 1)">Previous</a>
+                </li>
+                @for (var pageNumber = 1; pageNumber <= Model.Results.TotalPages; pageNumber++)
+                {
+                    <li class="page-item @(pageNumber == Model.Results.Page ? "active" : null)">
+                        <a class="page-link" asp-action="Index" asp-route-type="@Model.TypeFilter"
+                           asp-route-search="@Model.SearchTerm" asp-route-page="@pageNumber">@pageNumber</a>
+                    </li>
+                }
+                <li class="page-item @(Model.Results.HasNext ? null : "disabled")">
+                    <a class="page-link" asp-action="Index" asp-route-type="@Model.TypeFilter"
+                       asp-route-search="@Model.SearchTerm" asp-route-page="@(Model.Results.Page + 1)">Next</a>
+                </li>
+            </ul>
+        </nav>
+    }
 }

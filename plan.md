@@ -91,8 +91,8 @@ Notes:
 
 ## Phase 2 — Pagination
 
-- [ ] Add page number/size to `CatalogueQuery`; repository returns a paged result (items + total count)
-- [ ] Pager UI on the list page, preserving active filter/search in page links
+- [x] Add page number/size to `CatalogueQuery`; repository returns a paged result (items + total count)
+- [x] Pager UI on the list page, preserving active filter/search in page links
 
 ## Phase 3 — Analytics (with simulator)
 
@@ -134,3 +134,10 @@ Open questions to talk through before building:
   Smoke-tested via curl: list/filter/search, create (valid + invalid with
   server-side validation errors), type-scoped edit (wrong-type id 404s),
   delete. Remaining: manual browser pass by Matt + README.
+- **2026-07-04 (later)** — Working style agreed: no explanatory comments in
+  code (self-documenting), and Matt inspects + makes every commit himself.
+  Removed remaining comments. Built Phase 2 pagination (PagedResult<T>,
+  page/pageSize on CatalogueQuery, clamped page, Bootstrap pager preserving
+  filter/search) — verified with 13 rows over 2 pages via curl. Pinned
+  SQLitePCLRaw.bundle_e_sqlite3 3.0.3 to clear NU1903 advisory on the
+  transitive 2.1.11; runtime smoke-tested.
