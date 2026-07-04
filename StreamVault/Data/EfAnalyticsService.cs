@@ -15,14 +15,14 @@ public class EfAnalyticsService(CatalogueDbContext db) : IAnalyticsService
         var startDate = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(-(days - 1));
         var cutoff = startDate.ToDateTime(TimeOnly.MinValue);
 
-        var playedTimes = await db.PlayEvents
+        var dailyCounts = await db.PlayEvents
             .Where(e => e.ContentItemId == contentItemId && e.PlayedAt >= cutoff)
-            .Select(e => e.PlayedAt)
+            .GroupBy(e => e.PlayedAt.Date)
+            .Select(g => new { Day = g.Key, Count = g.Count() })
             .ToListAsync();
 
-        var countsByDate = playedTimes
-            .GroupBy(DateOnly.FromDateTime)
-            .ToDictionary(g => g.Key, g => g.Count());
+        var countsByDate = dailyCounts
+            .ToDictionary(x => DateOnly.FromDateTime(x.Day), x => x.Count);
 
         return Enumerable.Range(0, days)
             .Select(offset => startDate.AddDays(offset))

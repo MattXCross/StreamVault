@@ -25,6 +25,12 @@ public class CatalogueDbContext(DbContextOptions<CatalogueDbContext> options) : 
             .Property(c => c.Title)
             .HasMaxLength(200);
 
+        modelBuilder.Entity<ContentItem>()
+            .HasIndex(c => c.Title);
+
+        modelBuilder.Entity<ContentItem>()
+            .HasIndex("ContentType");
+
         modelBuilder.Entity<Movie>()
             .Property(m => m.DurationMinutes)
             .HasColumnName("DurationMinutes");
@@ -46,5 +52,8 @@ public class CatalogueDbContext(DbContextOptions<CatalogueDbContext> options) : 
 
         modelBuilder.Entity<PlayEvent>()
             .HasIndex(e => new { e.ContentItemId, e.PlayedAt });
+
+        modelBuilder.Entity<PlayEvent>()
+            .HasIndex(e => e.PlayedAt);
     }
 }
