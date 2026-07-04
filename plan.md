@@ -87,7 +87,7 @@ Notes:
 - [x] Delete with confirm, POST + anti-forgery
 - [x] Layout/nav tidy-up (point template nav at Catalogue), remove leftover template cruft
 - [ ] Manual test pass: all four types through create → list → filter → search → edit → delete
-- [ ] README: run instructions + brief rationale for EF Core / TPH choices
+- [x] README: run instructions + brief rationale for EF Core / TPH choices
 
 ## Phase 2 — Pagination
 
