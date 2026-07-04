@@ -3,10 +3,6 @@ using StreamVault.Models;
 
 namespace StreamVault.ViewModels;
 
-/// <summary>
-/// Common form fields for all content types. Non-generic so the shared
-/// _CommonContentFields partial can bind against it.
-/// </summary>
 public abstract class ContentFormViewModel
 {
     public int Id { get; set; }
@@ -32,12 +28,6 @@ public abstract class ContentFormViewModel
     public string? Genre { get; set; }
 }
 
-/// <summary>
-/// Adds typed mapping between the form and its entity. Subclasses override
-/// ApplyTo/LoadFrom to map their type-specific fields, calling base for the
-/// common ones. ApplyTo is only called after validation succeeds, so the
-/// required fields are known to have values.
-/// </summary>
 public abstract class ContentFormViewModel<TContent> : ContentFormViewModel
     where TContent : ContentItem
 {

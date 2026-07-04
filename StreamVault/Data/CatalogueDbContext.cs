@@ -20,9 +20,7 @@ public class CatalogueDbContext(DbContextOptions<CatalogueDbContext> options) : 
         modelBuilder.Entity<ContentItem>()
             .Property(c => c.Title)
             .HasMaxLength(200);
-
-        // Movie and Audiobook durations mean the same thing, so share one column
-        // rather than letting EF create a uniquified column per subclass.
+        
         modelBuilder.Entity<Movie>()
             .Property(m => m.DurationMinutes)
             .HasColumnName("DurationMinutes");

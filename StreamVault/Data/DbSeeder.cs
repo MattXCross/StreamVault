@@ -2,10 +2,6 @@ using StreamVault.Models;
 
 namespace StreamVault.Data;
 
-/// <summary>
-/// Creates the SQLite database on first run and seeds it with sample
-/// content, so the app works straight after clone + F5.
-/// </summary>
 public static class DbSeeder
 {
     public static void EnsureSeeded(this IServiceProvider services)
@@ -104,7 +100,8 @@ public static class DbSeeder
                 Artist = "Willa Hart",
                 TrackCount = 9,
                 RecordLabel = "Homestead Music"
-            });
+            }
+        );
 
         db.SaveChanges();
     }

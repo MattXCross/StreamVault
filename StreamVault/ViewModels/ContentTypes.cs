@@ -4,10 +4,6 @@ namespace StreamVault.ViewModels;
 
 public record ContentTypeInfo(string DisplayName, string ControllerName);
 
-/// <summary>
-/// The single place that knows which controller serves each content type,
-/// so views can build per-type links without checking concrete types.
-/// </summary>
 public static class ContentTypes
 {
     public static readonly IReadOnlyList<ContentTypeInfo> All =
