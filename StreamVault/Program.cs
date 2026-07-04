@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using StreamVault.Configuration;
 using StreamVault.Data;
+using StreamVault.Data.Analytics;
+using StreamVault.Data.Catalogue;
 
 var builder = WebApplication.CreateBuilder(args);
 

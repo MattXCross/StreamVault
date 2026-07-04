@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using StreamVault.Configuration;
-using StreamVault.Models;
+using StreamVault.Data.Analytics;
+using StreamVault.Models.Catalogue;
 
 namespace StreamVault.Data;
 

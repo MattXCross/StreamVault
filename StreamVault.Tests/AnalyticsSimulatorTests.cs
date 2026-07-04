@@ -1,4 +1,4 @@
-using StreamVault.Data;
+using StreamVault.Data.Analytics;
 
 namespace StreamVault.Tests;
 

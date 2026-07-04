@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using StreamVault.Models;
+using StreamVault.Models.Analytics;
+using StreamVault.Models.Catalogue;
 
 namespace StreamVault.Data;
 

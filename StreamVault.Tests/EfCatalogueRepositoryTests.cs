@@ -1,5 +1,6 @@
-using StreamVault.Data;
-using StreamVault.Models;
+using StreamVault.Data.Catalogue;
+using StreamVault.Models.Analytics;
+using StreamVault.Models.Catalogue;
 
 namespace StreamVault.Tests;
 

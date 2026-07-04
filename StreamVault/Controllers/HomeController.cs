@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using StreamVault.Models;
+using StreamVault.Models.Shared;
 
 namespace StreamVault.Controllers;
 
