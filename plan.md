@@ -147,6 +147,10 @@ shows stale data.
 - [ ] **Step 6 — UI.** Surface `% positive` and total plays on the list,
   and a per-item analytics view with a plays-over-time filter (viewership
   trend) and country breakdown.
+  - **Note:** stats creation is lazy — `GetStatsAsync` returns null and the
+    play/country queries return empty for content never played or rated.
+    Every read site must handle the no-stats case explicitly (Steam-style
+    "No plays / No ratings yet" rather than a crash or a blank).
 
 Open decisions to confirm at inspection: `Country` as a `string` (ISO code)
 vs a fixed enum; whether the simulator is a one-off seed or a live

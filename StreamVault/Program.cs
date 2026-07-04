@@ -8,6 +8,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<CatalogueDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("Catalogue")));
 builder.Services.AddScoped<ICatalogueRepository, EfCatalogueRepository>();
+builder.Services.AddScoped<IAnalyticsService, EfAnalyticsService>();
 
 var app = builder.Build();
 
