@@ -76,10 +76,10 @@ Notes:
 
 ## Phase 1 — MVP per the brief
 
-- [ ] EF Core + SQLite packages, connection string, `CatalogueDbContext` with TPH mapping
-- [ ] Domain entities: `ContentItem` + four subclasses, `AgeRating` enum
-- [ ] `ICatalogueRepository` + `EfCatalogueRepository`, DI registration
-- [ ] `DbSeeder`: EnsureCreated + seed data (a few items per type)
+- [x] EF Core + SQLite packages, connection string, `CatalogueDbContext` with TPH mapping
+- [x] Domain entities: `ContentItem` + four subclasses, `AgeRating` enum
+- [x] `ICatalogueRepository` + `EfCatalogueRepository`, DI registration
+- [x] `DbSeeder`: EnsureCreated + seed data (a few items per type)
 - [ ] View models with validation attributes + entity mapping
 - [ ] `ContentEntryController<TContent, TViewModel>` base (Create/Edit/Delete)
 - [ ] Four per-type controllers + Create/Edit views (shared partial for common fields)
