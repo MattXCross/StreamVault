@@ -3,3 +3,7 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+# SQLite database (created automatically on first run)
+*.db
+*.db-shm
+*.db-wal
