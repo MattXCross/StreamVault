@@ -10,4 +10,8 @@ public class CatalogueListViewModel
     public string? TypeFilter { get; init; }
 
     public string? SearchTerm { get; init; }
+
+    public int? ExpandedId { get; init; }
+
+    public ContentAnalyticsViewModel? AnalyticsPanel { get; init; }
 }

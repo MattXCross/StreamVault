@@ -1,0 +1,75 @@
+@model ContentAnalyticsViewModel
+
+@if (!Model.HasStats)
+{
+    <p class="text-muted mb-0">No plays or ratings recorded yet for this title.</p>
+}
+else
+{
+    <div class="row g-4 mb-3">
+        <div class="col-auto">
+            <div class="text-muted small">Lifetime plays</div>
+            <div class="fs-5 fw-semibold">@Model.Stats!.TotalPlays.ToString("N0")</div>
+        </div>
+        <div class="col-auto">
+            <div class="text-muted small">Rating</div>
+            <div class="fs-5 fw-semibold">
+                @if (Model.Stats.TotalRatings == 0)
+                {
+                    <span class="text-muted">No ratings yet</span>
+                }
+                else
+                {
+                    <span>@($"{Model.Stats.PositiveRatingPercent:0}% positive")</span>
+                    <span class="text-muted small">(@Model.Stats.ThumbsUp up / @Model.Stats.ThumbsDown down)</span>
+                }
+            </div>
+        </div>
+        <div class="col-auto">
+            <div class="text-muted small">Plays in @Model.WindowDays days</div>
+            <div class="fs-5 fw-semibold">@Model.WindowPlays.ToString("N0")</div>
+        </div>
+    </div>
+
+    <div class="row g-3" style="max-width: 560px;">
+        <div class="col-6">
+            <div class="text-muted small mb-1">Plays by day</div>
+            <div style="max-height: 220px; overflow-y: auto;">
+                <table class="table table-sm mb-0">
+                    <tbody>
+                    @foreach (var day in Model.PlaysOverTime.Reverse())
+                    {
+                        <tr>
+                            <td>@day.Date.ToString("ddd d MMM")</td>
+                            <td class="text-end">@day.Count.ToString("N0")</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="text-muted small mb-1">Plays by country</div>
+            <div style="max-height: 220px; overflow-y: auto;">
+                @if (Model.Countries.Count == 0)
+                {
+                    <p class="text-muted mb-0">No plays in this window.</p>
+                }
+                else
+                {
+                    <table class="table table-sm mb-0">
+                        <tbody>
+                        @foreach (var country in Model.Countries)
+                        {
+                            <tr>
+                                <td>@country.Country</td>
+                                <td class="text-end">@country.Count.ToString("N0")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+}

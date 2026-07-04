@@ -34,12 +34,14 @@ public class EfAnalyticsService(CatalogueDbContext db) : IAnalyticsService
     {
         var cutoff = DateTime.UtcNow.AddDays(-days);
 
-        return await db.PlayEvents
+        var grouped = await db.PlayEvents
             .Where(e => e.ContentItemId == contentItemId && e.PlayedAt >= cutoff)
             .GroupBy(e => e.Country)
-            .Select(g => new CountryPlayCount(g.Key, g.Count()))
-            .OrderByDescending(c => c.Count)
+            .Select(g => new { Country = g.Key, Count = g.Count() })
+            .OrderByDescending(g => g.Count)
             .ToListAsync();
+
+        return grouped.Select(g => new CountryPlayCount(g.Country, g.Count)).ToList();
     }
 
     public async Task RecordPlayAsync(int contentItemId, string country)

@@ -129,33 +129,61 @@ shows stale data.
 
 ### Steps (build + stop for inspection after each)
 
-- [ ] **Step 1 — Analytics domain models.** `ContentStats` and `PlayEvent`
+- [x] **Step 1 — Analytics domain models.** `ContentStats` and `PlayEvent`
   in `Models/`, mirroring the existing entity style (plain properties,
   computed `PositiveRatingPercent` marked `[NotMapped]`, no comments).
-- [ ] **Step 2 — DbContext + schema.** Add `DbSet`s, configure the FK to
+- [x] **Step 2 — DbContext + schema.** Add `DbSet`s, configure the FK to
   `ContentItem`, one-to-one for stats, and an index on
   `PlayEvent(ContentItemId, PlayedAt)` for the time-series query.
-- [ ] **Step 3 — `IAnalyticsService` + EF implementation.** Read side:
+- [x] **Step 3 — `IAnalyticsService` + EF implementation.** Read side:
   stats for one item, plays-over-time (grouped by day within a window),
   country breakdown; write side: record a play (insert event + bump
   aggregate), record a rating (bump thumbs up/down). Registered via DI.
-- [ ] **Step 4 — Simulator.** Seeds `ContentStats` for existing content and
+- [x] **Step 4 — Simulator.** Seeds `ContentStats` for existing content and
   generates plausible historical `PlayEvent`s + ratings, so the UI has data
-  on first run. (Decide: one-off seed vs ongoing background traffic.)
-- [ ] **Step 5 — TTL purge.** `IHostedService` deleting `PlayEvent`s older
-  than 30 days on an interval.
-- [ ] **Step 6 — UI.** Surface `% positive` and total plays on the list,
-  and a per-item analytics view with a plays-over-time filter (viewership
-  trend) and country breakdown.
-  - **Note:** stats creation is lazy — `GetStatsAsync` returns null and the
-    play/country queries return empty for content never played or rated.
-    Every read site must handle the no-stats case explicitly (Steam-style
-    "No plays / No ratings yet" rather than a crash or a blank).
+  on first run. Decision: **one-off historical backfill** (not a live feed);
+  gated by `Analytics:EnableSimulator` in `Program.cs`.
+- [x] **Step 5 — TTL purge.** `IHostedService` deleting `PlayEvent`s older
+  than `Analytics:PlayEventRetentionDays`. Registered **only for SQLite**
+  (`Database:Provider`), since a managed DB enforces TTL natively.
+- **Step 6 — UI (expandable analytics rows, no JavaScript).** Each catalogue
+  row's title is a link that expands it via an `?expand={id}` query param;
+  the server renders an inline analytics panel for that one row only (so no
+  N+1 — only the expanded item is queried). Read-only. Plays-over-time and
+  country breakdown shown as **tables** (no charting library); lifetime plays
+  and Steam-style % positive as headline stats. A 7 / 14 / 30-day window
+  selector rendered as links (`&days={n}`). Filter/search/page preserved in
+  every link; `#row-{id}` fragment keeps scroll position across the reload.
+  Trade-off: expand/collapse is a full page reload rather than an in-place
+  toggle — acceptable for an admin tool, and bookmarkable + accessible.
+  - **No-stats case:** lazy stats mean `GetStatsAsync` can be null and the
+    play/country queries empty for content never played/rated (e.g. freshly
+    created items). The panel shows "No plays or ratings recorded yet" rather
+    than a crash or blank.
+  - [x] **6a — Backend.** `ContentAnalyticsViewModel` + `_AnalyticsPanel`
+    partial (headline stats + plays-by-day and country tables). Window
+    clamped to {7,14,30}. Analytics folded into `CatalogueController.Index`
+    (expand/days params) — no separate endpoint, no AJAX. Also fixed an
+    untranslatable GROUP-BY in `GetCountryBreakdownAsync` found by running it.
+  - [x] **6b — Frontend (no JS).** Expand via `?expand` links; inline panel
+    rendered server-side; window selector as `&days` links; row highlight +
+    caret + `#row` scroll anchor. Verified via curl: expand renders the panel
+    only for on-page rows, window links change the data (7/14/30 → 46/89/182
+    plays), filter/search/page preserved. Chart.js and `analytics.js` dropped.
 
-Open decisions to confirm at inspection: `Country` as a `string` (ISO code)
-vs a fixed enum; whether the simulator is a one-off seed or a live
-background feed; where analytics surfaces first (list columns vs a dedicated
-details page).
+Resolved decisions: `Country` stored as a `string` (ISO-ish code); simulator
+is a one-off historical backfill; stats creation stays lazy (get-or-create on
+write, nullable on read). Still open for Step 6: where analytics surface first
+(list columns vs a dedicated details/analytics page) — to decide with Matt.
+
+**Config added during Phase 3** (`AnalyticsOptions` + `Database:Provider`):
+- `Analytics:EnableSimulator` (default true) — gates the simulator in `Program.cs`.
+- `Analytics:PlayEventRetentionDays` (default 30) — drives both the simulator
+  window and the purge cutoff.
+- `Database:Provider` (default `Sqlite`) — selects the EF provider and gates
+  the purge hosted service (SQLite only).
+- Connection string resolved from user secrets / env with an in-code dev
+  default (`Data Source=streamvault.db`); nothing sensitive committed.
 
 ## Phase 4 — DuckDB-driven frontend filtering
 
@@ -189,3 +217,13 @@ Open questions to talk through before building:
   filter/search) — verified with 13 rows over 2 pages via curl. Pinned
   SQLitePCLRaw.bundle_e_sqlite3 3.0.3 to clear NU1903 advisory on the
   transitive 2.1.11; runtime smoke-tested.
+- **2026-07-04 (analytics backend)** — Phase 3 Steps 1–5 built one at a time
+  (Matt commits each): domain models → DbContext/schema (1:1 stats FK,
+  composite play-event index, cascade delete) → `IAnalyticsService`/EF impl →
+  one-off simulator → TTL purge hosted service. Added `AnalyticsOptions`
+  (simulator toggle, retention days), `Database:Provider` gating (purge is
+  SQLite-only), and moved the connection string to user secrets with an
+  in-code dev default. Verified at DB level: ~6k simulated events over 30
+  days with declining/steady/rising trends, purge deletes >retention events,
+  config toggles + secret override all confirmed by running the app. Next:
+  Step 6 analytics UI.

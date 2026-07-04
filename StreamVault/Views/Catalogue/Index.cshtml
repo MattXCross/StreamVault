@@ -67,8 +67,16 @@ else
         @foreach (var item in Model.Results.Items)
         {
             var controller = ContentTypes.ControllerFor(item);
-            <tr>
-                <td>@item.Title</td>
+            var isExpanded = Model.ExpandedId == item.Id;
+            <tr id="row-@item.Id" class="@(isExpanded ? "table-active" : null)">
+                <td>
+                    <a asp-action="Index" asp-route-type="@Model.TypeFilter" asp-route-search="@Model.SearchTerm"
+                       asp-route-page="@Model.Results.Page"
+                       asp-route-expand="@(isExpanded ? (int?)null : item.Id)"
+                       asp-fragment="row-@item.Id" class="text-decoration-none text-reset">
+                        <span class="text-muted">@(isExpanded ? "▾" : "▸")</span> @item.Title
+                    </a>
+                </td>
                 <td><span class="badge text-bg-secondary">@item.TypeDisplayName</span></td>
                 <td>@item.Genre</td>
                 <td>@item.ReleaseDate.ToString("d MMM yyyy")</td>
@@ -83,6 +91,29 @@ else
                     </form>
                 </td>
             </tr>
+            @if (isExpanded && Model.AnalyticsPanel is not null)
+            {
+                <tr class="table-active">
+                    <td colspan="6">
+                        @if (Model.AnalyticsPanel.HasStats)
+                        {
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                                <span class="text-muted small">Window</span>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    @foreach (var option in ContentAnalyticsViewModel.WindowOptions)
+                                    {
+                                        <a class="btn btn-outline-secondary @(option == Model.AnalyticsPanel.WindowDays ? "active" : null)"
+                                           asp-action="Index" asp-route-type="@Model.TypeFilter" asp-route-search="@Model.SearchTerm"
+                                           asp-route-page="@Model.Results.Page" asp-route-expand="@item.Id" asp-route-days="@option"
+                                           asp-fragment="row-@item.Id">@option days</a>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <partial name="_AnalyticsPanel" model="Model.AnalyticsPanel"/>
+                    </td>
+                </tr>
+            }
         }
         </tbody>
     </table>
