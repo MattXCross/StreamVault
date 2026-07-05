@@ -26,7 +26,7 @@ public static class DbSeeder
         var options = scope.ServiceProvider.GetRequiredService<IOptions<AnalyticsOptions>>().Value;
         if (options.EnableSimulator && !db.ContentStats.Any())
         {
-            var simulator = scope.ServiceProvider.GetRequiredService<IAnalyticsSimulator>();
+            var simulator = scope.ServiceProvider.GetRequiredService<AnalyticsSimulator>();
 
             foreach (var contentId in db.Contents.Select(c => c.Id).ToList())
             {

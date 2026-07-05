@@ -2,7 +2,9 @@ using StreamVault.Models.Analytics;
 
 namespace StreamVault.Data.Analytics;
 
-public class AnalyticsSimulator : IAnalyticsSimulator
+public record SimulatedPlay(int ContentItemId, string Country, bool? Rating);
+
+public class AnalyticsSimulator
 {
     private const double RatingChance = 0.1;
     private const double PositiveRatingChance = 0.75;

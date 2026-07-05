@@ -27,7 +27,7 @@ builder.Services.AddDbContext<CatalogueDbContext>(options =>
 });
 builder.Services.AddScoped<ICatalogueRepository, EfCatalogueRepository>();
 builder.Services.AddScoped<IAnalyticsService, EfAnalyticsService>();
-builder.Services.AddSingleton<IAnalyticsSimulator, AnalyticsSimulator>();
+builder.Services.AddSingleton<AnalyticsSimulator>();
 
 if (usingSqlite)
 {

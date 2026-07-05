@@ -6,7 +6,7 @@ namespace StreamVault.Data.Analytics;
 
 public class AnalyticsSimulationService(
     IServiceScopeFactory scopeFactory,
-    IAnalyticsSimulator simulator,
+    AnalyticsSimulator simulator,
     IOptions<AnalyticsOptions> options) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
