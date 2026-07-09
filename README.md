@@ -12,7 +12,7 @@ Requirements: .NET 10 SDK.
 dotnet run --project StreamVault
 ```
 
-Or open `StreamVault.sln` in Visual Studio and press F5. On first run.
+Or open `StreamVault.sln` in Visual Studio and press F5.
 
 The dev connection string has an in-code default (`Data Source=streamvault.db`),
 so nothing needs to be configured to run locally. For a real deployment the
